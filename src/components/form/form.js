@@ -62,6 +62,13 @@ export default class Form {
             if (!item.name) return;
             if (key === 'valid') return;
 
+            this.activeTooltips.some((el, index) => {
+                if (el.name === item.name) {
+                    this.tooltip.removeTooltip(el.id);
+                    this.activeTooltips.splice(index, 1);
+                }
+            });
+
             return item.validity[key];
         });
 
@@ -92,21 +99,7 @@ export default class Form {
 
         const error = this.getError(element);
         if (error) {
-
-            const activeErroeMessage = this.activeTooltips.some((item, index) => {
-                if (item.name === element.name) {
-                    this.tooltip.removeTooltip(item.id);
-                    this.activeTooltips.splice(index, 1);
-                }
-            });
-
             this.renderTooltip(error, element);
-        } else {
-            const activeErroeMessage = this.activeTooltips.find(item => item.name === element.name);
-            if (activeErroeMessage) {
-                this.tooltip.removeTooltip(activeErroeMessage.id);
-                this.activeTooltips.filter(item => item.name !== element.name);
-            }
         }
         element.removeEventListener('blur', this.onBlur);
     }
