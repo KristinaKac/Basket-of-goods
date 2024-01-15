@@ -7,20 +7,6 @@ export default class Modal {
         return `
         <div class="modal">
             <div class="modal_box">
-                <form class="form" novalidate>
-                    <div class="form-control">
-                        <label class="label_input" for="title">Название</label>
-                        <input type="text" class="input title" name="title" id="title" required>
-                    </div>
-                    <div class="form-control">
-                        <label class="label_input" for="price">Стоимость</label>
-                        <input type="text" class="input price" name="price" id="price" required>
-                    </div>
-                    <div class="btns">
-                        <button class="btn" type="submit">Сохранить</button>
-                        <button class="btn" type="button">Отмена</button>
-                    </div>
-                </form>
             </div>
         </div>
         `

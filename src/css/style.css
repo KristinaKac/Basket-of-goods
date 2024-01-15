@@ -1,4 +1,6 @@
 @import url('../components/modal/style.css');
+@import url('../components/tooltip/style.css');
+
 * {
     padding: 0;
     margin: 0;
