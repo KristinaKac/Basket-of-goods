@@ -1,12 +1,17 @@
 export default class Form {
-    constructor(parentEl, tooltip) {
+    constructor(parentEl, tooltip, basket, modal) {
         this.parentEl = parentEl;
         this.tooltip = tooltip;
+        this.basket = basket;
+        this.modal = modal;
+        this.rewriteElement;
+
         this.activeTooltips = [];
         this.form;
 
         this.onSubmit = this.onSubmit.bind(this);
         this.onBlur = this.onBlur.bind(this);
+        Form.restoreFormElements = Form.restoreFormElements.bind(this);
 
         this.errors = {
             title: {
@@ -84,7 +89,7 @@ export default class Form {
 
         const elements = [...this.form.elements];
 
-        elements.some(element => {
+        const errorSubmit = elements.some(element => {
             const error = this.getError(element);
 
             if (error) {
@@ -92,7 +97,24 @@ export default class Form {
                 return true;
             }
         });
+
+        if (!errorSubmit) {
+            if (this.rewriteElement) {
+                this.basket.addRow(elements);
+
+                this.basket.removeRow(this.rewriteElement);
+                this.resetForm();
+                this.modal.closeModal();
+                this.rewriteElement = undefined;
+            } else {
+                this.basket.addRow(elements);
+                this.resetForm();
+                this.modal.closeModal();
+            }
+
+        }
     }
+
 
     onBlur(e) {
         const element = e.target;
@@ -102,5 +124,20 @@ export default class Form {
             this.renderTooltip(error, element);
         }
         element.removeEventListener('blur', this.onBlur);
+    }
+    resetForm() {
+        this.form.reset();
+    }
+
+    static restoreFormElements(element) {
+        const findEl = this.basket.tableElements.find(el => el.id == element.dataset.id);
+        const formElements = [...this.form.elements];
+
+        Object.entries(findEl).some(([key, value]) => {
+
+            const formEl = formElements.find(el => key === el.name);
+            if (formEl) formEl.value = value;
+        });
+        this.rewriteElement = element;
     }
 }

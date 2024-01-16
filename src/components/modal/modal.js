@@ -19,6 +19,7 @@ export default class Modal {
         this.modal = this.parentEl.querySelector('.modal');
         this.modal.classList.add('open');
     }
-    
-
+    closeModal(){
+        this.modal.classList.remove('open');
+    }
 }
