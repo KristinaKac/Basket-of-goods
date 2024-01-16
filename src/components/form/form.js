@@ -11,6 +11,7 @@ export default class Form {
 
         this.onSubmit = this.onSubmit.bind(this);
         this.onBlur = this.onBlur.bind(this);
+        this.onCancelClick = this.onCancelClick.bind(this);
         Form.restoreFormElements = Form.restoreFormElements.bind(this);
 
         this.errors = {
@@ -37,7 +38,7 @@ export default class Form {
                 </div>
                 <div class="btns">
                     <button class="btn" type="submit">Сохранить</button>
-                    <button class="btn" type="button">Отмена</button>
+                    <button class="btn cancel" type="button">Отмена</button>
                 </div>
             </form>
         `
@@ -53,8 +54,10 @@ export default class Form {
     bindToDOM() {
         this.parentEl.insertAdjacentHTML('beforeend', Form.markup);
         this.form = this.parentEl.querySelector('.form');
+        this.cancel = this.parentEl.querySelector('.cancel');
 
         this.form.addEventListener('submit', this.onSubmit);
+        this.cancel.addEventListener('click', this.onCancelClick);
 
         [...this.form.elements].forEach(element => element.addEventListener('focus', () => {
             element.addEventListener('blur', this.onBlur);
@@ -114,8 +117,9 @@ export default class Form {
 
         }
     }
-
-
+    onCancelClick(){
+        this.modal.closeModal();
+    }
     onBlur(e) {
         const element = e.target;
 
