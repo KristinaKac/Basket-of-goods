@@ -8,6 +8,7 @@ export default class Form {
 
         this.activeTooltips = [];
         this.form;
+        this.formElements;
 
         this.onSubmit = this.onSubmit.bind(this);
         this.onBlur = this.onBlur.bind(this);
@@ -50,20 +51,6 @@ export default class Form {
             id: this.tooltip.showTooltip(message, element),
         });
     }
-
-    bindToDOM() {
-        this.parentEl.insertAdjacentHTML('beforeend', Form.markup);
-        this.form = this.parentEl.querySelector('.form');
-        this.cancel = this.parentEl.querySelector('.cancel');
-
-        this.form.addEventListener('submit', this.onSubmit);
-        this.cancel.addEventListener('click', this.onCancelClick);
-
-        [...this.form.elements].forEach(element => element.addEventListener('focus', () => {
-            element.addEventListener('blur', this.onBlur);
-        }));
-    }
-
     getError = (item) => {
         const errorKey = Object.keys(ValidityState.prototype).find(key => {
 
@@ -85,14 +72,30 @@ export default class Form {
         return this.errors[item.name][errorKey];
     }
 
+    bindToDOM() {
+        this.parentEl.insertAdjacentHTML('beforeend', Form.markup);
+
+        this.form = this.parentEl.querySelector('.form');
+        this.formElements = [...this.form.elements];
+        this.cancel = this.parentEl.querySelector('.cancel');
+
+        this.addListeners();
+    }
+    addListeners() {
+        this.form.addEventListener('submit', this.onSubmit);
+        this.cancel.addEventListener('click', this.onCancelClick);
+
+        [...this.form.elements].forEach(element => element.addEventListener('focus', () => {
+            element.addEventListener('blur', this.onBlur);
+        }));
+    }
+
     onSubmit(e) {
         e.preventDefault();
 
         this.activeTooltips.forEach(tooltip => this.tooltip.removeTooltip(tooltip.id));
 
-        const elements = [...this.form.elements];
-
-        const errorSubmit = elements.some(element => {
+        const errorSubmit = this.formElements.some(element => {
             const error = this.getError(element);
 
             if (error) {
@@ -101,25 +104,23 @@ export default class Form {
             }
         });
 
-        if (!errorSubmit) {
-            if (this.rewriteElement) {
-                this.basket.addRow(elements);
+        if (errorSubmit) return;
 
-                this.basket.removeRow(this.rewriteElement);
-                this.resetForm();
-                this.modal.closeModal();
-                this.rewriteElement = undefined;
-            } else {
-                this.basket.addRow(elements);
-                this.resetForm();
-                this.modal.closeModal();
-            }
-
+        if (this.rewriteElement) {
+            this.basket.removeRow(this.rewriteElement);
+            this.rewriteElement = undefined;
         }
-    }
-    onCancelClick(){
+        this.basket.addRow(this.formElements);
+        this.resetForm();
         this.modal.closeModal();
     }
+
+    onCancelClick() {
+        this.resetForm();
+        this.rewriteElement = undefined;
+        this.modal.closeModal();
+    }
+
     onBlur(e) {
         const element = e.target;
 
@@ -129,17 +130,17 @@ export default class Form {
         }
         element.removeEventListener('blur', this.onBlur);
     }
+
     resetForm() {
         this.form.reset();
     }
 
     static restoreFormElements(element) {
         const findEl = this.basket.tableElements.find(el => el.id == element.dataset.id);
-        const formElements = [...this.form.elements];
 
         Object.entries(findEl).some(([key, value]) => {
 
-            const formEl = formElements.find(el => key === el.name);
+            const formEl = this.formElements.find(el => key === el.name);
             if (formEl) formEl.value = value;
         });
         this.rewriteElement = element;

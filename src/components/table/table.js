@@ -75,9 +75,7 @@ export default class Table {
             }
             if (e.target.closest('.edit_btn')) {
                 const el = e.target.closest('tr');
-
                 Form.restoreFormElements(el);
-                
                 this.modal.openModal();
             }
             if (e.target.closest('.remove_btn')) {
@@ -86,17 +84,15 @@ export default class Table {
             }
         });
     }
-    addRow(elements) {
+
+    addRow(formElements) {
         const items = {};
 
-        const row = [...elements].filter(element => this.columns[element.name]);
+        const row = [...formElements].filter(element => this.columns[element.name]);
         Array.from(row).forEach(item => {
-
             items[item.name] = item.value;
-
         });
         const id = performance.now();
-
         items.id = id;
 
         this.tableElements.push(items);
@@ -104,17 +100,18 @@ export default class Table {
         this.renderRow(items);
         this.updateLocalStorage();
     }
-    removeRow(el) {
-        this.tableElements = this.tableElements.filter(item => item.id != el.dataset.id);
-        this.updateLocalStorage();
-        el.remove();
 
-        console.log(this.tableElements)
+    removeRow(htmlElement) {
+        if(confirm('Вы уверены, что хотите удалить товар?')){
+            this.tableElements = this.tableElements.filter(item => item.id != htmlElement.dataset.id);
+            this.updateLocalStorage();
+            htmlElement.remove();
+        }
     }
 
-    renderRow(items) {
+    renderRow(object) {
         const tbody = this.parentEl.querySelector('tbody');
-        const { title, price, id } = items;
+        const { title, price, id } = object;
 
         const markupEl = this.markupElement(title, price, id);
         tbody.insertAdjacentHTML('beforeend', markupEl);
