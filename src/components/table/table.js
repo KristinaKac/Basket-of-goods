@@ -80,7 +80,9 @@ export default class Table {
             }
             if (e.target.closest('.remove_btn')) {
                 const el = e.target.closest('tr');
-                this.removeRow(el);
+                if (confirm('Вы уверены, что хотите удалить товар?')) {
+                    this.removeRow(el);
+                }
             }
         });
     }
@@ -102,11 +104,9 @@ export default class Table {
     }
 
     removeRow(htmlElement) {
-        if(confirm('Вы уверены, что хотите удалить товар?')){
-            this.tableElements = this.tableElements.filter(item => item.id != htmlElement.dataset.id);
-            this.updateLocalStorage();
-            htmlElement.remove();
-        }
+        this.tableElements = this.tableElements.filter(item => item.id != htmlElement.dataset.id);
+        this.updateLocalStorage();
+        htmlElement.remove();
     }
 
     renderRow(object) {
